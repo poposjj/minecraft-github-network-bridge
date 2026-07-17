@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "github_network_bridge",
+  "version": "${version}",
+  "name": "Minecraft GitHub Network Bridge",
+  "description": "A simple GitHub-only connection for Minecraft Fabric mods, with subscription setup and a built-in Windows runtime.",
+  "authors": [
+    "poposjj"
+  ],
+  "contributors": [
+    "Codex implementation"
+  ],
+  "contact": {
+    "homepage": "https://github.com/poposjj/minecraft-github-network-bridge",
+    "sources": "https://github.com/poposjj/minecraft-github-network-bridge",
+    "issues": "https://github.com/poposjj/minecraft-github-network-bridge/issues"
+  },
+  "license": "GPL-3.0-only",
+  "environment": "client",
+  "entrypoints": {
+    "preLaunch": [
+      "io.github.githubnetworkbridge.GitHubBridgePreLaunch"
+    ],
+    "client": [
+      "io.github.githubnetworkbridge.GitHubBridgeClient"
+    ],
+    "modmenu": [
+      "io.github.githubnetworkbridge.GitHubBridgeModMenu"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "1.21.11",
+    "java": ">=21",
+    "fabric-api": ">=0.141.5+1.21.11"
+  },
+  "suggests": {
+    "modmenu": ">=17.0.0"
+  }
+}

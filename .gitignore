@@ -1,0 +1,11 @@
+.gradle/
+build/
+run/
+logs/
+out/
+*.iml
+.idea/
+
+# Runtime configuration may contain private proxy credentials and paths.
+github-network-bridge.properties
+minecraft-github-network-bridge.properties
