@@ -102,8 +102,17 @@ public final class BridgeConfigScreen extends Screen {
         int footerY = height - 28;
         int footerWidth = Math.min(115, (contentWidth - gap * 2) / 3);
         int footerLeft = (width - (footerWidth * 3 + gap * 2)) / 2;
-        addDrawableChild(ButtonWidget.builder(Text.translatable("github_network_bridge.config.test"),
-                        button -> testConnection())
+        boolean quickSubscriptionPage = tab == Tab.SETTINGS && settingsPage == SettingsPage.QUICK;
+        Text primaryActionLabel = Text.translatable(quickSubscriptionPage
+                ? "github_network_bridge.config.refresh_proxies"
+                : "github_network_bridge.config.test");
+        addDrawableChild(ButtonWidget.builder(primaryActionLabel, button -> {
+                    if (quickSubscriptionPage) {
+                        refreshProxyGroup();
+                    } else {
+                        testConnection();
+                    }
+                })
                 .dimensions(footerLeft, footerY, footerWidth, 20).build());
         addDrawableChild(ButtonWidget.builder(Text.translatable("gui.cancel"), button -> close())
                 .dimensions(footerLeft + footerWidth + gap, footerY, footerWidth, 20).build());
@@ -181,11 +190,6 @@ public final class BridgeConfigScreen extends Screen {
     }
 
     private void initProxyGroup(int left, int width) {
-        int refreshWidth = Math.min(140, width);
-        addDrawableChild(ButtonWidget.builder(
-                        Text.translatable("github_network_bridge.config.refresh_proxies"),
-                        button -> refreshProxyGroup())
-                .dimensions(left, 58, refreshWidth, 20).build());
         ButtonWidget latencyButton = ButtonWidget.builder(Text.literal("↻"),
                         button -> refreshProxyLatencies())
                 .dimensions(left + width - 20, 58, 20, 20).build();
@@ -218,13 +222,13 @@ public final class BridgeConfigScreen extends Screen {
             ButtonWidget previous = ButtonWidget.builder(Text.literal("<"), button -> {
                 proxyPage--;
                 clearAndInit();
-            }).dimensions(left + refreshWidth + 5, y, 28, 20).build();
+            }).dimensions(left, y, 28, 20).build();
             previous.active = proxyPage > 0;
             addDrawableChild(previous);
             ButtonWidget next = ButtonWidget.builder(Text.literal(">"), button -> {
                 proxyPage++;
                 clearAndInit();
-            }).dimensions(left + refreshWidth + 38, y, 28, 20).build();
+            }).dimensions(left + 33, y, 28, 20).build();
             next.active = proxyPage + 1 < pageCount;
             addDrawableChild(next);
         }
@@ -316,6 +320,7 @@ public final class BridgeConfigScreen extends Screen {
                         proxyLatencies = Map.of();
                         proxyPage = 0;
                         settingsPage = SettingsPage.GENERAL;
+                        tab = Tab.PROXY_GROUP;
                         status = Text.translatable("github_network_bridge.config.proxy_count", names.size())
                                 .formatted(Formatting.GREEN);
                         clearAndInit();

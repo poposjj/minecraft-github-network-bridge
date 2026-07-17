@@ -12,6 +12,13 @@
 
 <a id="changes-zh"></a>
 
+## 🇨🇳 `1.0.1` 快速订阅操作调整 🔄🧭
+
+- ⛏️ 快速订阅页底部的“测试”改为“获取/刷新线路”。
+- 🌐 保存订阅后立即下载并刷新线路，然后自动进入代理组。
+- 🧹 删除代理组顶部重复的“获取/刷新线路”按钮。
+- 🧭 代理组保留翻页、选线和 `↻` 节点延迟刷新。
+
 ## 🇨🇳 `1.0.0` 首版 🎮💎
 
 ### 🚀 实际使用
@@ -52,6 +59,12 @@
 
 <a id="changes-en"></a>
 
+## 🇬🇧 `1.0.1` Quick Subscription Flow 🔄🧭
+
+- Replaced the Quick Setup footer Test action with Get / Refresh Proxies.
+- Saving a quick subscription now downloads it, refreshes the list, and opens Proxy Group.
+- Removed the duplicate refresh action from Proxy Group; paging, selection, and latency testing remain there.
+
 ## 🇬🇧 `1.0.0` First Release 🎮💎
 
 - 📦 One Fabric JAR with an embedded Mihomo runtime; no separate Sidecar installation.
@@ -69,6 +82,12 @@
 ---
 
 <a id="changes-ru"></a>
+
+## 🇷🇺 `1.0.1` Быстрая подписка 🔄🧭
+
+- Кнопка проверки на странице быстрой подписки заменена на получение и обновление узлов.
+- После сохранения подписка загружается, список обновляется и открывается группа прокси.
+- Дублирующая кнопка удалена из группы прокси; там остались страницы, выбор узла и измерение задержки.
 
 ## 🇷🇺 `1.0.0` Первый выпуск 🎮💎
 

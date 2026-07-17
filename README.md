@@ -24,11 +24,11 @@
 
 ## 🚀 先用起来：五步完成配置
 
-1. 📥 下载 `minecraft-github-network-bridge-1.21.11-1.0.0.jar`。
+1. 📥 下载 `minecraft-github-network-bridge-1.21.11-1.0.1.jar`。
 2. 📂 把 JAR 放进当前我的世界 Minecraft 实例的 `mods` 文件夹。
 3. ▶️ 启动游戏，打开 **选项 → 我的世界 GitHub**。
-4. ⚙️ 进入 **设置 → 快速订阅**，粘贴 Clash/Mihomo 订阅 URL。
-5. 🌐 打开 **代理组**，点击 **获取/刷新线路**，再选择一条线路并点击 **测试**。
+4. ⚙️ 进入 **设置 → 快速订阅**，粘贴 Clash/Mihomo 订阅 URL，然后点击底部的 **获取/刷新线路**。
+5. 🌐 打开 **代理组**，选择一条线路；需要测速时点击右上角的 `↻` 小方形按钮。
 
 看到绿色 `HTTP 200` 后，这个 Minecraft 实例中的兼容模组就可以通过所选线路访问 GitHub。✅💎
 
@@ -54,6 +54,7 @@
 - **订阅链接输入框**：粘贴 Clash/Mihomo YAML 订阅 URL。
 - **用途**：使用默认名称、超时、更新周期和安全参数快速创建配置。
 - **保存结果**：新的 URL 会清空旧线路选择，获取新订阅后重新选线。
+- **获取/刷新线路**：替代原来的“测试”按钮；保存 URL、下载订阅、刷新列表，然后自动进入代理组。
 
 #### 🧱 新建配置
 
@@ -75,7 +76,6 @@
 
 这里就是 Clash Verge 中“代理组/节点选择”的对应页面。导入订阅后，所有直接节点会列在这里。🛰️
 
-- **获取/刷新线路**：重新下载订阅，解析线路，并刷新列表。私人 URL 与节点只保存在当前 Minecraft 实例。
 - **`↻` 正方形按钮**：刷新所有节点的 GitHub 实际延迟。它会短暂启动隔离的 Mihomo 测试进程，逐节点访问 GitHub，结束后立即关闭。
 - **未点击 `↻`**：不显示任何延迟。
 - **点击 `↻` 后**：可用线路显示 `[xx ms]`，失败显示 `[--]`。
@@ -85,7 +85,8 @@
 
 ### 🧪 底部公共按键
 
-- **测试**：保存当前设置，等待内置连接准备完成，然后请求 GitHub API。`HTTP 200` 表示可用。
+- **获取/刷新线路**：只在快速订阅页显示，保存订阅并刷新代理组。
+- **测试**：在新建配置、常规设置和代理组页面显示；保存当前设置，等待内置连接准备完成，然后请求 GitHub API。`HTTP 200` 表示可用。
 - **取消**：返回上一个页面，不主动保存当前输入框中尚未提交的修改。
 - **完成**：保存设置并返回；后台会根据变化重建 GitHub-only 配置。
 
@@ -194,11 +195,11 @@ config/minecraft-github-network-bridge/runtime/minecraft-github-only.yaml
 
 ## 🚀 Quick start
 
-1. 📥 Download `minecraft-github-network-bridge-1.21.11-1.0.0.jar`.
+1. 📥 Download `minecraft-github-network-bridge-1.21.11-1.0.1.jar`.
 2. 📂 Put it in the Minecraft instance's `mods` folder.
 3. ▶️ Open **Options → Minecraft GitHub**.
-4. ⚙️ Open **Settings → Quick Setup** and paste a Clash/Mihomo YAML subscription URL.
-5. 🌐 Open **Proxy Group**, click **Get / Refresh Proxies**, choose a proxy, and click **Test**.
+4. ⚙️ Open **Settings → Quick Setup**, paste a Clash/Mihomo YAML subscription URL, then click **Get / Refresh Proxies** in the footer.
+5. 🌐 Open **Proxy Group** and choose a proxy. Use the small `↻` button to measure GitHub latency when needed.
 
 Green `HTTP 200` means compatible Minecraft mods can reach GitHub through the selected proxy. ✅
 
@@ -211,6 +212,7 @@ Minecraft `1.21.11`, Fabric Loader `0.19.3+`, Fabric API `0.141.5+1.21.11+`, Jav
 ### ⚙️ Settings tab
 
 - **Quick Setup → Subscription URL**: creates a configuration with practical defaults. A new URL clears the old proxy selection.
+- **Quick Setup → Get / Refresh Proxies**: replaces the old Test action, saves the URL, downloads the subscription, and opens the refreshed Proxy Group.
 - **New Config → Name**: friendly configuration name.
 - **New Config → Description**: local note; it does not affect networking.
 - **New Config → Subscription URL**: private Clash/Mihomo YAML URL.
@@ -223,7 +225,6 @@ Minecraft `1.21.11`, Fabric Loader `0.19.3+`, Fabric API `0.141.5+1.21.11+`, Jav
 
 ### 🌐 Proxy Group tab
 
-- **Get / Refresh Proxies**: downloads the subscription and rebuilds the proxy list.
 - **Square `↻` button**: runs a real GitHub URL Test through every node using a temporary isolated Mihomo process.
 - **Before `↻` is clicked**: no latency is displayed.
 - **After `↻` is clicked**: `[xx ms]` is working, `[--]` failed.
@@ -233,7 +234,8 @@ Minecraft `1.21.11`, Fabric Loader `0.19.3+`, Fabric API `0.141.5+1.21.11+`, Jav
 
 ### 🧪 Common bottom buttons
 
-- **Test**: saves current values, waits for the built-in connection, then requests the GitHub API.
+- **Get / Refresh Proxies**: appears on Quick Setup and refreshes the subscription and Proxy Group.
+- **Test**: appears on New Config, General, and Proxy Group; it saves current values and requests the GitHub API.
 - **Cancel**: returns without intentionally saving unfinished input.
 - **Done**: saves and rebuilds the private GitHub-only profile when required.
 
@@ -275,11 +277,11 @@ Never publish a real subscription URL. Runtime YAML, tokens, proxy credentials, 
 
 ## 🚀 Быстрый запуск
 
-1. 📥 Скачайте `minecraft-github-network-bridge-1.21.11-1.0.0.jar`.
+1. 📥 Скачайте `minecraft-github-network-bridge-1.21.11-1.0.1.jar`.
 2. 📂 Поместите JAR в папку `mods` нужной сборки Minecraft.
 3. ▶️ Откройте **Настройки → Minecraft GitHub**.
-4. ⚙️ В **Настройки → Быстрая подписка** вставьте URL YAML-подписки Clash/Mihomo.
-5. 🌐 В **Группа прокси** нажмите **Получить / обновить прокси**, выберите узел и нажмите **Проверить**.
+4. ⚙️ В **Настройки → Быстрая подписка** вставьте URL YAML-подписки Clash/Mihomo и нажмите нижнюю кнопку **Получить / обновить прокси**.
+5. 🌐 Откройте **Группу прокси** и выберите узел. Маленькая кнопка `↻` измеряет задержку GitHub.
 
 Зелёный `HTTP 200` означает, что совместимые моды Minecraft могут обращаться к GitHub. ✅
 
@@ -292,6 +294,7 @@ Minecraft `1.21.11`, Fabric Loader `0.19.3+`, Fabric API `0.141.5+1.21.11+`, Jav
 ### ⚙️ Вкладка «Настройки»
 
 - **Быстрая подписка → URL подписки**: создаёт конфигурацию со стандартными параметрами; новый URL сбрасывает старый выбор узла.
+- **Быстрая подписка → Получить / обновить прокси**: заменяет старую проверку, сохраняет URL, загружает подписку и открывает обновлённую группу прокси.
 - **Новая конфигурация → Название**: понятное имя локальной конфигурации.
 - **Описание**: локальная заметка, не влияет на сеть.
 - **URL подписки**: приватная YAML-подписка Clash/Mihomo.
@@ -304,7 +307,6 @@ Minecraft `1.21.11`, Fabric Loader `0.19.3+`, Fabric API `0.141.5+1.21.11+`, Jav
 
 ### 🌐 Вкладка «Группа прокси»
 
-- **Получить / обновить прокси**: загружает подписку и обновляет список.
 - **Квадратная кнопка `↻`**: выполняет реальный GitHub URL Test для всех узлов во временном изолированном Mihomo.
 - **До нажатия `↻`**: задержка не показывается.
 - **После нажатия**: `[xx ms]` — узел работает, `[--]` — проверка не прошла.
@@ -314,7 +316,8 @@ Minecraft `1.21.11`, Fabric Loader `0.19.3+`, Fabric API `0.141.5+1.21.11+`, Jav
 
 ### 🧪 Нижние кнопки
 
-- **Проверить**: сохраняет параметры и проверяет GitHub API.
+- **Получить / обновить прокси**: показывается на странице быстрой подписки и обновляет список узлов.
+- **Проверить**: показывается в новой конфигурации, общих настройках и группе прокси; сохраняет параметры и проверяет GitHub API.
 - **Отмена**: возвращается без намеренного сохранения незавершённого ввода.
 - **Готово**: сохраняет и при необходимости перестраивает GitHub-only профиль.
 
