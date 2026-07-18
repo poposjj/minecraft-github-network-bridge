@@ -36,7 +36,7 @@ class BridgeConfigTest {
         BridgeConfig config = BridgeConfig.load(file).withProfile(
                 "Minecraft Test", "Private subscription",
                 "https://subscription.example/clash.yaml?token=private",
-                "clash.meta", 20, 180, false, false, true)
+                "clash.meta", 20, 180, false, true, false, true)
                 .withSelectedProxy("Node B");
         config.save(file);
 
@@ -47,7 +47,21 @@ class BridgeConfigTest {
         assertEquals("https://subscription.example/clash.yaml?token=private", saved.subscriptionUrl());
         assertEquals(20, saved.subscriptionTimeoutSeconds());
         assertEquals(180, saved.subscriptionUpdateMinutes());
+        assertFalse(saved.subscriptionUseSystemProxy());
+        assertTrue(saved.subscriptionUseKernelProxy());
         assertEquals("Node B", saved.selectedProxyName());
+    }
+
+    @Test
+    void migratesLegacyCurrentProxySettingToBothUpdatePaths() throws Exception {
+        Path file = temporaryDirectory.resolve(BridgeConfig.FILE_NAME);
+        Files.writeString(file, """
+                subscriptionUseCurrentProxy=false
+                """);
+
+        BridgeConfig migrated = BridgeConfig.load(file);
+        assertFalse(migrated.subscriptionUseSystemProxy());
+        assertFalse(migrated.subscriptionUseKernelProxy());
     }
 
     @Test

@@ -31,16 +31,18 @@ public final class BridgeConfigScreen extends Screen {
     private Tab tab = Tab.SETTINGS;
     private SettingsPage settingsPage;
     private boolean enabled;
-    private String profileName;
-    private String profileDescription;
-    private String subscriptionUrl;
+    private String quickSubscriptionUrl;
+    private String newProfileName;
+    private String newProfileDescription;
+    private String newSubscriptionUrl;
     private String selectedProxyName;
-    private String userAgent;
-    private String timeoutSeconds;
-    private String updateMinutes;
-    private boolean useCurrentProxy;
-    private boolean allowInsecure;
-    private boolean autoUpdate;
+    private String newUserAgent;
+    private String newTimeoutSeconds;
+    private String newUpdateMinutes;
+    private boolean newUseSystemProxy;
+    private boolean newUseKernelProxy;
+    private boolean newAllowInsecure;
+    private boolean newAutoUpdate;
     private List<String> proxyNames;
     private Map<String, Integer> proxyLatencies = Map.of();
     private int proxyPage;
@@ -66,16 +68,9 @@ public final class BridgeConfigScreen extends Screen {
             throw new IllegalStateException("我的世界 GitHub 网络桥接尚未初始化");
         }
         enabled = config.enabled();
-        profileName = config.profileName();
-        profileDescription = config.profileDescription();
-        subscriptionUrl = config.subscriptionUrl();
+        quickSubscriptionUrl = config.subscriptionUrl();
         selectedProxyName = config.selectedProxyName();
-        userAgent = config.subscriptionUserAgent();
-        timeoutSeconds = Integer.toString(config.subscriptionTimeoutSeconds());
-        updateMinutes = Integer.toString(config.subscriptionUpdateMinutes());
-        useCurrentProxy = config.subscriptionUseCurrentProxy();
-        allowInsecure = config.subscriptionAllowInsecure();
-        autoUpdate = config.subscriptionAutoUpdate();
+        resetNewProfileDraft();
         proxyNames = new ArrayList<>(BridgeRuntime.INSTANCE.availableProxyNames());
         settingsPage = config.configured() ? SettingsPage.GENERAL : SettingsPage.QUICK;
         tab = openProxyGroup ? Tab.PROXY_GROUP : Tab.SETTINGS;
@@ -100,24 +95,35 @@ public final class BridgeConfigScreen extends Screen {
         }
 
         int footerY = height - 28;
-        int footerWidth = Math.min(115, (contentWidth - gap * 2) / 3);
-        int footerLeft = (width - (footerWidth * 3 + gap * 2)) / 2;
         boolean quickSubscriptionPage = tab == Tab.SETTINGS && settingsPage == SettingsPage.QUICK;
-        Text primaryActionLabel = Text.translatable(quickSubscriptionPage
-                ? "github_network_bridge.config.refresh_proxies"
-                : "github_network_bridge.config.test");
-        addDrawableChild(ButtonWidget.builder(primaryActionLabel, button -> {
-                    if (quickSubscriptionPage) {
-                        refreshProxyGroup();
-                    } else {
-                        testConnection();
-                    }
-                })
-                .dimensions(footerLeft, footerY, footerWidth, 20).build());
+        boolean showPrimaryAction = quickSubscriptionPage || tab == Tab.PROXY_GROUP;
+        int footerButtonCount = showPrimaryAction ? 3 : 2;
+        int footerWidth = Math.min(115,
+                (contentWidth - gap * (footerButtonCount - 1)) / footerButtonCount);
+        int footerLeft = (width
+                - (footerWidth * footerButtonCount + gap * (footerButtonCount - 1))) / 2;
+        int footerIndex = 0;
+        if (showPrimaryAction) {
+            Text primaryActionLabel = Text.translatable(quickSubscriptionPage
+                    ? "github_network_bridge.config.refresh_proxies"
+                    : "github_network_bridge.config.test");
+            addDrawableChild(ButtonWidget.builder(primaryActionLabel, button -> {
+                        if (quickSubscriptionPage) {
+                            refreshProxyGroup();
+                        } else {
+                            testConnection();
+                        }
+                    })
+                    .dimensions(footerLeft, footerY, footerWidth, 20).build());
+            footerIndex++;
+        }
         addDrawableChild(ButtonWidget.builder(Text.translatable("gui.cancel"), button -> close())
-                .dimensions(footerLeft + footerWidth + gap, footerY, footerWidth, 20).build());
-        addDrawableChild(ButtonWidget.builder(ScreenTexts.DONE, button -> saveAndClose())
-                .dimensions(footerLeft + (footerWidth + gap) * 2, footerY, footerWidth, 20).build());
+                .dimensions(footerLeft + (footerWidth + gap) * footerIndex,
+                        footerY, footerWidth, 20).build());
+        footerIndex++;
+        addDrawableChild(ButtonWidget.builder(ScreenTexts.DONE, button -> finish())
+                .dimensions(footerLeft + (footerWidth + gap) * footerIndex,
+                        footerY, footerWidth, 20).build());
     }
 
     private void initSettings(int left, int width) {
@@ -139,54 +145,66 @@ public final class BridgeConfigScreen extends Screen {
 
     private void initQuick(int left, int width) {
         quickUrlField = field(left, 108, width,
-                Text.translatable("github_network_bridge.config.subscription_url"), subscriptionUrl, 4096);
+                Text.translatable("github_network_bridge.config.subscription_url"),
+                quickSubscriptionUrl, 4096);
         quickUrlField.setPlaceholder(Text.translatable("github_network_bridge.config.paste_subscription"));
     }
 
     private void initCreate(int left, int width) {
-        int rowGap = Math.min(32, Math.max(24, (height - 132) / 4));
-        int y = 96;
+        int y = 88;
+        ButtonWidget type = ButtonWidget.builder(
+                        Text.translatable("github_network_bridge.config.type_remote"), ignored -> { })
+                .dimensions(left, y, width, 20).build();
+        type.active = false;
+        addDrawableChild(type);
+        y += 29;
         nameField = field(left, y, width,
-                Text.translatable("github_network_bridge.config.profile_name"), profileName, 100);
-        y += rowGap;
+                Text.translatable("github_network_bridge.config.profile_name"), newProfileName, 100);
+        y += 29;
         descriptionField = field(left, y, width,
-                Text.translatable("github_network_bridge.config.description"), profileDescription, 300);
-        y += rowGap;
+                Text.translatable("github_network_bridge.config.description"),
+                newProfileDescription, 300);
+        y += 29;
         subscriptionField = field(left, y, width,
-                Text.translatable("github_network_bridge.config.subscription_url"), subscriptionUrl, 4096);
-        y += rowGap;
+                Text.translatable("github_network_bridge.config.subscription_url"),
+                newSubscriptionUrl, 4096);
+        y += 29;
         userAgentField = field(left, y, width,
-                Text.translatable("github_network_bridge.config.user_agent"), userAgent, 200);
+                Text.translatable("github_network_bridge.config.user_agent"), newUserAgent, 200);
+        y += 29;
+        int half = (width - 5) / 2;
+        timeoutField = field(left, y, half,
+                Text.translatable("github_network_bridge.config.timeout"), newTimeoutSeconds, 3);
+        timeoutField.setTextPredicate(BridgeConfigScreen::digitsOnly);
+        updateField = field(left + half + 5, y, half,
+                Text.translatable("github_network_bridge.config.interval"), newUpdateMinutes, 5);
+        updateField.setTextPredicate(BridgeConfigScreen::digitsOnly);
+        y += 30;
+        addDrawableChild(toggle(left, y, half, systemProxyText(), button -> {
+            newUseSystemProxy = !newUseSystemProxy;
+            button.setMessage(systemProxyText());
+        }));
+        addDrawableChild(toggle(left + half + 5, y, half, kernelProxyText(), button -> {
+            newUseKernelProxy = !newUseKernelProxy;
+            button.setMessage(kernelProxyText());
+        }));
+        y += 24;
+        addDrawableChild(toggle(left, y, half, allowInsecureText(), button -> {
+            newAllowInsecure = !newAllowInsecure;
+            button.setMessage(allowInsecureText());
+        }));
+        addDrawableChild(toggle(left + half + 5, y, half, autoUpdateText(), button -> {
+            newAutoUpdate = !newAutoUpdate;
+            button.setMessage(autoUpdateText());
+        }));
     }
 
     private void initGeneral(int left, int width) {
-        int half = (width - 5) / 2;
         int y = 88;
-        addDrawableChild(toggle(left, y, half, enabledText(), button -> {
+        addDrawableChild(toggle(left, y, width, enabledText(), button -> {
             enabled = !enabled;
             button.setMessage(enabledText());
         }));
-        addDrawableChild(toggle(left + half + 5, y, half, autoUpdateText(), button -> {
-            autoUpdate = !autoUpdate;
-            button.setMessage(autoUpdateText());
-        }));
-        y += 26;
-        addDrawableChild(toggle(left, y, half, useCurrentProxyText(), button -> {
-            useCurrentProxy = !useCurrentProxy;
-            button.setMessage(useCurrentProxyText());
-        }));
-        addDrawableChild(toggle(left + half + 5, y, half, allowInsecureText(), button -> {
-            allowInsecure = !allowInsecure;
-            button.setMessage(allowInsecureText());
-        }));
-
-        int fieldsY = y + 36;
-        timeoutField = field(left, fieldsY, half,
-                Text.translatable("github_network_bridge.config.timeout"), timeoutSeconds, 3);
-        timeoutField.setTextPredicate(BridgeConfigScreen::digitsOnly);
-        updateField = field(left + half + 5, fieldsY, half,
-                Text.translatable("github_network_bridge.config.interval"), updateMinutes, 5);
-        updateField.setTextPredicate(BridgeConfigScreen::digitsOnly);
     }
 
     private void initProxyGroup(int left, int width) {
@@ -274,29 +292,31 @@ public final class BridgeConfigScreen extends Screen {
     }
 
     private void captureFields() {
-        if (quickUrlField != null) subscriptionUrl = quickUrlField.getText();
-        if (nameField != null) profileName = nameField.getText();
-        if (descriptionField != null) profileDescription = descriptionField.getText();
-        if (subscriptionField != null) subscriptionUrl = subscriptionField.getText();
-        if (userAgentField != null) userAgent = userAgentField.getText();
-        if (timeoutField != null) timeoutSeconds = timeoutField.getText();
-        if (updateField != null) updateMinutes = updateField.getText();
+        if (quickUrlField != null) quickSubscriptionUrl = quickUrlField.getText();
+        if (nameField != null) newProfileName = nameField.getText();
+        if (descriptionField != null) newProfileDescription = descriptionField.getText();
+        if (subscriptionField != null) newSubscriptionUrl = subscriptionField.getText();
+        if (userAgentField != null) newUserAgent = userAgentField.getText();
+        if (timeoutField != null) newTimeoutSeconds = timeoutField.getText();
+        if (updateField != null) newUpdateMinutes = updateField.getText();
     }
 
     private BridgeConfig configuredState() throws Exception {
         captureFields();
         BridgeConfig current = BridgeRuntime.INSTANCE.config();
         BridgeConfig updated;
-        if (settingsPage == SettingsPage.QUICK) {
-            updated = current.withQuickSubscription(subscriptionUrl);
+        if (tab == Tab.PROXY_GROUP) {
+            updated = current.withEnabled(enabled);
+        } else if (settingsPage == SettingsPage.QUICK) {
+            updated = current.withQuickSubscription(quickSubscriptionUrl);
             selectedProxyName = "";
+        } else if (settingsPage == SettingsPage.CREATE) {
+            updated = current.withProfile(newProfileName, newProfileDescription, newSubscriptionUrl,
+                    newUserAgent, parseInteger(newTimeoutSeconds, "请求超时"),
+                    parseInteger(newUpdateMinutes, "更新间隔"), newUseSystemProxy,
+                    newUseKernelProxy, newAllowInsecure, newAutoUpdate);
         } else {
-            updated = current.withProfile(profileName, profileDescription, subscriptionUrl, userAgent,
-                    parseInteger(timeoutSeconds, "请求超时"), parseInteger(updateMinutes, "更新间隔"),
-                    useCurrentProxy, allowInsecure, autoUpdate);
-            if (!selectedProxyName.isBlank()) {
-                updated = updated.withSelectedProxy(selectedProxyName);
-            }
+            updated = current.withEnabled(enabled);
         }
         return updated.withEnabled(enabled);
     }
@@ -322,6 +342,40 @@ public final class BridgeConfigScreen extends Screen {
                         settingsPage = SettingsPage.GENERAL;
                         tab = Tab.PROXY_GROUP;
                         status = Text.translatable("github_network_bridge.config.proxy_count", names.size())
+                                .formatted(Formatting.GREEN);
+                        clearAndInit();
+                    }));
+        } catch (Exception exception) {
+            status = Text.literal(message(exception)).formatted(Formatting.RED);
+        }
+    }
+
+    private void createProfile() {
+        BridgeConfig previous = BridgeRuntime.INSTANCE.config();
+        try {
+            save(true);
+            tab = Tab.PROXY_GROUP;
+            status = Text.translatable("github_network_bridge.config.loading_proxies")
+                    .formatted(Formatting.YELLOW);
+            clearAndInit();
+            BridgeRuntime.INSTANCE.proxyNamesWhenReady().whenComplete((names, error) ->
+                    client.execute(() -> {
+                        if (error != null) {
+                            try {
+                                BridgeRuntime.INSTANCE.saveAndApply(previous, false);
+                            } catch (Exception rollbackError) {
+                                error.addSuppressed(rollbackError);
+                            }
+                            status = Text.literal(message(error)).formatted(Formatting.RED);
+                            return;
+                        }
+                        proxyNames = new ArrayList<>(names);
+                        proxyLatencies = Map.of();
+                        proxyPage = 0;
+                        selectedProxyName = "";
+                        resetNewProfileDraft();
+                        status = Text.translatable("github_network_bridge.config.profile_created",
+                                        names.size())
                                 .formatted(Formatting.GREEN);
                         clearAndInit();
                     }));
@@ -366,6 +420,14 @@ public final class BridgeConfigScreen extends Screen {
             close();
         } catch (Exception exception) {
             status = Text.literal(message(exception)).formatted(Formatting.RED);
+        }
+    }
+
+    private void finish() {
+        if (tab == Tab.SETTINGS && settingsPage == SettingsPage.CREATE) {
+            createProfile();
+        } else {
+            saveAndClose();
         }
     }
 
@@ -434,17 +496,24 @@ public final class BridgeConfigScreen extends Screen {
     }
 
     private Text autoUpdateText() {
-        return Text.translatable(autoUpdate
+        return Text.translatable(newAutoUpdate
                 ? "github_network_bridge.config.auto_update_on" : "github_network_bridge.config.auto_update_off");
     }
 
-    private Text useCurrentProxyText() {
-        return Text.translatable(useCurrentProxy
-                ? "github_network_bridge.config.current_line_on" : "github_network_bridge.config.current_line_off");
+    private Text systemProxyText() {
+        return Text.translatable(newUseSystemProxy
+                ? "github_network_bridge.config.system_proxy_on"
+                : "github_network_bridge.config.system_proxy_off");
+    }
+
+    private Text kernelProxyText() {
+        return Text.translatable(newUseKernelProxy
+                ? "github_network_bridge.config.kernel_proxy_on"
+                : "github_network_bridge.config.kernel_proxy_off");
     }
 
     private Text allowInsecureText() {
-        return Text.translatable(allowInsecure
+        return Text.translatable(newAllowInsecure
                 ? "github_network_bridge.config.insecure_on" : "github_network_bridge.config.insecure_off");
     }
 
@@ -456,6 +525,19 @@ public final class BridgeConfigScreen extends Screen {
         userAgentField = null;
         timeoutField = null;
         updateField = null;
+    }
+
+    private void resetNewProfileDraft() {
+        newProfileName = "";
+        newProfileDescription = "";
+        newSubscriptionUrl = "";
+        newUserAgent = BridgeConfig.DEFAULT_USER_AGENT;
+        newTimeoutSeconds = "15";
+        newUpdateMinutes = "360";
+        newUseSystemProxy = true;
+        newUseKernelProxy = true;
+        newAllowInsecure = false;
+        newAutoUpdate = true;
     }
 
     private static boolean digitsOnly(String value) {

@@ -49,7 +49,7 @@ class ManagedMihomoRuntimeTest {
                             temporaryDirectory.resolve(BridgeConfig.FILE_NAME))
                     .withProfile("Clash coexistence", "", "http://127.0.0.1:"
                                     + subscriptionServer.getAddress().getPort() + "/subscription",
-                            "clash.meta", 10, 360, false, false, true)
+                            "clash.meta", 10, 360, false, false, false, true)
                     .withLocalProxyPort(preferredPort);
 
             BridgeConfig active = runtime.ensureAvailable(config, false);

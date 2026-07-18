@@ -277,20 +277,22 @@ final class ManagedMihomoRuntime {
             directFailure = exception;
         }
 
-        if (!config.subscriptionUseCurrentProxy()) {
+        if (!config.subscriptionUseSystemProxy() && !config.subscriptionUseKernelProxy()) {
             throw directFailure;
         }
 
         Set<ProxySelector> fallbacks = new LinkedHashSet<>();
-        if (bootstrapProxySelector != null
+        if (config.subscriptionUseSystemProxy() && bootstrapProxySelector != null
                 && !(bootstrapProxySelector instanceof DirectProxySelector)
                 && !(bootstrapProxySelector instanceof GitHubProxySelector)) {
             fallbacks.add(bootstrapProxySelector);
         }
-        for (int port : COMMON_LOCAL_PROXY_PORTS) {
-            if (portReady(port, Duration.ofMillis(250))) {
-                fallbacks.add(ProxySelector.of(
-                        InetSocketAddress.createUnresolved("127.0.0.1", port)));
+        if (config.subscriptionUseKernelProxy()) {
+            for (int port : COMMON_LOCAL_PROXY_PORTS) {
+                if (portReady(port, Duration.ofMillis(250))) {
+                    fallbacks.add(ProxySelector.of(
+                            InetSocketAddress.createUnresolved("127.0.0.1", port)));
+                }
             }
         }
 
@@ -304,16 +306,18 @@ final class ManagedMihomoRuntime {
                 fallbackFailure = exception;
             }
         }
-        for (int port : COMMON_LOCAL_PROXY_PORTS) {
-            if (!portReady(port, Duration.ofMillis(250))) {
-                continue;
-            }
-            try {
-                String downloaded = downloadWithWindowsNetworkTool(config, uri, port);
-                logger.info("已通过 Windows 网络工具更新订阅");
-                return downloaded;
-            } catch (IOException exception) {
-                fallbackFailure = exception;
+        if (config.subscriptionUseKernelProxy()) {
+            for (int port : COMMON_LOCAL_PROXY_PORTS) {
+                if (!portReady(port, Duration.ofMillis(250))) {
+                    continue;
+                }
+                try {
+                    String downloaded = downloadWithWindowsNetworkTool(config, uri, port);
+                    logger.info("已通过本地代理内核更新订阅");
+                    return downloaded;
+                } catch (IOException exception) {
+                    fallbackFailure = exception;
+                }
             }
         }
         if (fallbackFailure != null) {

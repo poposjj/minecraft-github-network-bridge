@@ -26,7 +26,8 @@ public record BridgeConfig(
         String subscriptionUserAgent,
         int subscriptionTimeoutSeconds,
         int subscriptionUpdateMinutes,
-        boolean subscriptionUseCurrentProxy,
+        boolean subscriptionUseSystemProxy,
+        boolean subscriptionUseKernelProxy,
         boolean subscriptionAllowInsecure,
         boolean subscriptionAutoUpdate,
         int localProxyPort,
@@ -70,6 +71,7 @@ public record BridgeConfig(
 
         String subscriptionUrl = value(values, "subscriptionUrl", "");
         validateSubscriptionUrl(subscriptionUrl, true);
+        boolean legacyUseCurrentProxy = bool(values, "subscriptionUseCurrentProxy", true);
         return new BridgeConfig(
                 bool(values, "enabled", true),
                 value(values, "profileName", "Minecraft GitHub"),
@@ -79,7 +81,8 @@ public record BridgeConfig(
                 value(values, "subscriptionUserAgent", DEFAULT_USER_AGENT),
                 integer(values, "subscriptionTimeoutSeconds", 15, 3, 120),
                 integer(values, "subscriptionUpdateMinutes", 360, 5, 10080),
-                bool(values, "subscriptionUseCurrentProxy", true),
+                bool(values, "subscriptionUseSystemProxy", legacyUseCurrentProxy),
+                bool(values, "subscriptionUseKernelProxy", legacyUseCurrentProxy),
                 bool(values, "subscriptionAllowInsecure", false),
                 bool(values, "subscriptionAutoUpdate", true),
                 integer(values, "localProxyPort", DEFAULT_LOCAL_PORT, 1024, 65535),
@@ -99,7 +102,10 @@ public record BridgeConfig(
         values.setProperty("subscriptionUserAgent", subscriptionUserAgent);
         values.setProperty("subscriptionTimeoutSeconds", Integer.toString(subscriptionTimeoutSeconds));
         values.setProperty("subscriptionUpdateMinutes", Integer.toString(subscriptionUpdateMinutes));
-        values.setProperty("subscriptionUseCurrentProxy", Boolean.toString(subscriptionUseCurrentProxy));
+        values.setProperty("subscriptionUseSystemProxy", Boolean.toString(subscriptionUseSystemProxy));
+        values.setProperty("subscriptionUseKernelProxy", Boolean.toString(subscriptionUseKernelProxy));
+        values.setProperty("subscriptionUseCurrentProxy",
+                Boolean.toString(subscriptionUseSystemProxy || subscriptionUseKernelProxy));
         values.setProperty("subscriptionAllowInsecure", Boolean.toString(subscriptionAllowInsecure));
         values.setProperty("subscriptionAutoUpdate", Boolean.toString(subscriptionAutoUpdate));
         values.setProperty("localProxyPort", Integer.toString(localProxyPort));
@@ -140,19 +146,21 @@ public record BridgeConfig(
     public BridgeConfig withEnabled(boolean newEnabled) {
         return copy(newEnabled, profileName, profileDescription, subscriptionUrl, selectedProxyName,
                 subscriptionUserAgent, subscriptionTimeoutSeconds, subscriptionUpdateMinutes,
-                subscriptionUseCurrentProxy, subscriptionAllowInsecure, subscriptionAutoUpdate);
+                subscriptionUseSystemProxy, subscriptionUseKernelProxy,
+                subscriptionAllowInsecure, subscriptionAutoUpdate);
     }
 
     public BridgeConfig withQuickSubscription(String url) throws IOException {
         validateSubscriptionUrl(url, false);
         String name = profileName.isBlank() ? "Minecraft GitHub" : profileName;
         return copy(true, name, profileDescription, url.trim(), "", DEFAULT_USER_AGENT,
-                15, 360, true, false, true);
+                15, 360, true, true, false, true);
     }
 
     public BridgeConfig withProfile(String name, String description, String url, String userAgent,
                                     int timeoutSeconds, int updateMinutes,
-                                    boolean useCurrentProxy, boolean allowInsecure,
+                                     boolean useSystemProxy, boolean useKernelProxy,
+                                     boolean allowInsecure,
                                     boolean autoUpdate) throws IOException {
         validateSubscriptionUrl(url, false);
         if (name == null || name.isBlank()) {
@@ -169,14 +177,30 @@ public record BridgeConfig(
         return copy(true, name.trim(), description == null ? "" : description.trim(), normalizedUrl,
                 selected,
                 userAgent == null || userAgent.isBlank() ? DEFAULT_USER_AGENT : userAgent.trim(),
-                timeoutSeconds, updateMinutes, useCurrentProxy, allowInsecure, autoUpdate);
+                timeoutSeconds, updateMinutes, useSystemProxy, useKernelProxy,
+                allowInsecure, autoUpdate);
     }
 
     public BridgeConfig withSelectedProxy(String proxyName) {
         return copy(enabled, profileName, profileDescription, subscriptionUrl,
                 proxyName == null ? "" : proxyName.trim(), subscriptionUserAgent,
                 subscriptionTimeoutSeconds, subscriptionUpdateMinutes,
-                subscriptionUseCurrentProxy, subscriptionAllowInsecure, subscriptionAutoUpdate);
+                subscriptionUseSystemProxy, subscriptionUseKernelProxy,
+                subscriptionAllowInsecure, subscriptionAutoUpdate);
+    }
+
+    public BridgeConfig withGeneralSettings(boolean newEnabled, int timeoutSeconds,
+                                            int updateMinutes) throws IOException {
+        if (timeoutSeconds < 3 || timeoutSeconds > 120) {
+            throw new IOException("请求超时必须在 3 到 120 秒之间");
+        }
+        if (updateMinutes < 5 || updateMinutes > 10080) {
+            throw new IOException("更新间隔必须在 5 到 10080 分钟之间");
+        }
+        return copy(newEnabled, profileName, profileDescription, subscriptionUrl,
+                selectedProxyName, subscriptionUserAgent, timeoutSeconds, updateMinutes,
+                subscriptionUseSystemProxy, subscriptionUseKernelProxy,
+                subscriptionAllowInsecure, subscriptionAutoUpdate);
     }
 
     public BridgeConfig withLocalProxyPort(int port) throws IOException {
@@ -185,17 +209,20 @@ public record BridgeConfig(
         }
         return new BridgeConfig(enabled, profileName, profileDescription, subscriptionUrl,
                 selectedProxyName, subscriptionUserAgent, subscriptionTimeoutSeconds,
-                subscriptionUpdateMinutes, subscriptionUseCurrentProxy,
+                subscriptionUpdateMinutes, subscriptionUseSystemProxy,
+                subscriptionUseKernelProxy,
                 subscriptionAllowInsecure, subscriptionAutoUpdate, port, githubDomains,
                 startupTimeout, testUrl, connectTimeout);
     }
 
     private BridgeConfig copy(boolean newEnabled, String newName, String newDescription,
                               String newUrl, String newSelectedProxy, String newUserAgent, int newTimeout,
-                              int newUpdateMinutes, boolean newUseCurrentProxy,
+                               int newUpdateMinutes, boolean newUseSystemProxy,
+                               boolean newUseKernelProxy,
                               boolean newAllowInsecure, boolean newAutoUpdate) {
         return new BridgeConfig(newEnabled, newName, newDescription, newUrl, newSelectedProxy, newUserAgent,
-                newTimeout, newUpdateMinutes, newUseCurrentProxy, newAllowInsecure,
+                newTimeout, newUpdateMinutes, newUseSystemProxy, newUseKernelProxy,
+                newAllowInsecure,
                 newAutoUpdate, localProxyPort, githubDomains, startupTimeout,
                 testUrl, connectTimeout);
     }
@@ -255,6 +282,8 @@ public record BridgeConfig(
                 subscriptionUserAgent=clash.meta
                 subscriptionTimeoutSeconds=15
                 subscriptionUpdateMinutes=360
+                subscriptionUseSystemProxy=true
+                subscriptionUseKernelProxy=true
                 subscriptionUseCurrentProxy=true
                 subscriptionAllowInsecure=false
                 subscriptionAutoUpdate=true

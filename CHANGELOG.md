@@ -12,6 +12,16 @@
 
 <a id="changes-zh"></a>
 
+## 🇨🇳 `1.0.2` 精简设置页操作 🧹🧭
+
+- 🧪 删除新建配置和常规设置页没有实际用途的“测试”按钮。
+- 🧱 新建配置点击“完成”后会保存、获取线路并直接进入代理组。
+- 🎛️ 新建配置和常规设置底部改为居中的“取消/完成”双按钮。
+- 🧰 类型、名称、描述、订阅、User Agent、超时、间隔和四个更新开关全部集中到新建配置。
+- 🔀 将旧“借用网络工具”拆分为“使用系统代理更新”和“使用内核代理更新”，并自动迁移旧配置。
+- ♻️ 新建成功后自动导入线路并重置全部新建字段；失败时保留草稿并回滚原运行配置。
+- 🗃️ 历史版本永久保留；从本版起 Release 同时提供运行 JAR 与 `sources.jar`。
+
 ## 🇨🇳 `1.0.1` 快速订阅操作调整 🔄🧭
 
 - ⛏️ 快速订阅页底部的“测试”改为“获取/刷新线路”。
@@ -59,6 +69,16 @@
 
 <a id="changes-en"></a>
 
+## 🇬🇧 `1.0.2` Cleaner Settings Actions 🧹🧭
+
+- Removed Test from New Config and General Settings.
+- New Config Done now saves, refreshes proxies, and opens Proxy Group.
+- New Config and General now use centered Cancel and Done buttons.
+- Type, metadata, subscription, User Agent, timeout, interval, and four update switches now live under New Config.
+- Split the legacy network-tool switch into independent system-proxy and kernel-proxy update paths with migration.
+- Successful creation imports proxies and resets the entire form; failure preserves the draft and rolls back the active profile.
+- Historical tags and releases remain available; releases now attach both the runnable JAR and `sources.jar`.
+
 ## 🇬🇧 `1.0.1` Quick Subscription Flow 🔄🧭
 
 - Replaced the Quick Setup footer Test action with Get / Refresh Proxies.
@@ -82,6 +102,16 @@
 ---
 
 <a id="changes-ru"></a>
+
+## 🇷🇺 `1.0.2` Упрощённые действия 🧹🧭
+
+- Кнопка проверки удалена из новой конфигурации и общих настроек.
+- Готово в новой конфигурации сохраняет профиль, обновляет узлы и открывает группу прокси.
+- Внизу этих страниц остаются центрированные кнопки Отмена и Готово.
+- Тип, метаданные, подписка, User Agent, тайм-аут, интервал и четыре переключателя перенесены в новую конфигурацию.
+- Старый сетевой переключатель разделён на системный прокси и прокси-ядро с автоматической миграцией.
+- Успешное создание импортирует узлы и очищает форму; ошибка сохраняет черновик и восстанавливает активный профиль.
+- Исторические теги и выпуски сохраняются; Release теперь содержит рабочий JAR и `sources.jar`.
 
 ## 🇷🇺 `1.0.1` Быстрая подписка 🔄🧭
 

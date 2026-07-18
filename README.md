@@ -24,7 +24,7 @@
 
 ## 🚀 先用起来：五步完成配置
 
-1. 📥 下载 `minecraft-github-network-bridge-1.21.11-1.0.1.jar`。
+1. 📥 下载 `minecraft-github-network-bridge-1.21.11-1.0.2.jar`。
 2. 📂 把 JAR 放进当前我的世界 Minecraft 实例的 `mods` 文件夹。
 3. ▶️ 启动游戏，打开 **选项 → 我的世界 GitHub**。
 4. ⚙️ 进入 **设置 → 快速订阅**，粘贴 Clash/Mihomo 订阅 URL，然后点击底部的 **获取/刷新线路**。
@@ -43,6 +43,13 @@
 
 项目按多版本方式维护，不把未来发行限定在 Minecraft `1.21.11`；不同 Minecraft 版本会提供各自的构建 JAR。🧱🔨
 
+### 🗃️ GitHub 历史版本保留规则
+
+- 每次更新新增独立 Git Tag 和 GitHub Release，不覆盖、不删除旧版本。
+- 每个 Release 保留对应版本的可运行 JAR；从 `1.0.2` 起同时附带 `sources.jar`。
+- 每个 Tag 都可下载 GitHub 自动生成的 Source code ZIP/TAR.GZ，完整还原该版本源码。
+- 测试实例只安装最新 JAR，但 GitHub 永久保留历史源码与历史构建。
+
 ## 🖥️ 每个页面和按键的详细说明
 
 ### ⚙️ 顶层页签：设置
@@ -58,19 +65,23 @@
 
 #### 🧱 新建配置
 
+- **类型**：当前为 `Remote`，表示通过远程订阅链接获取配置。
 - **名称**：给这份我的世界 Minecraft GitHub 配置起一个容易识别的名字。
 - **描述**：记录用途，不参与网络连接。
 - **订阅链接**：Clash/Mihomo YAML 订阅 URL。
 - **User Agent**：订阅服务器识别下载客户端时使用；一般保留 `clash.meta`。
+- **HTTP 请求超时**：下载订阅的最长等待秒数。
+- **更新间隔**：自动更新订阅的分钟数。
+- **使用系统代理更新**：直连失败时允许使用系统/Java 当前代理路径更新订阅。
+- **使用内核代理更新**：直连失败时允许探测本机代理内核端口更新订阅。
+- **允许无效证书（危险）**：允许证书无效的订阅服务器，默认关闭。
+- **允许自动更新**：按更新间隔自动刷新订阅。
+- **完成**：立即进入代理组并后台获取线路。成功解析后自动导入线路并重置整个新建表单；失败时保留表单内容，方便返回修改。
 
 #### 🎛️ 常规设置
 
 - **GitHub：开/关**：总开关。关闭后 Mod 停止内置 Mihomo，并把网络控制交回原来的 Minecraft 网络路径。
-- **自动更新：开/关**：按设定分钟数更新订阅；失败时保留上一次可用缓存。
-- **借用网络工具：开/关**：仅在下载订阅失败时尝试当前电脑上的本机网络工具。它不会让游戏流量长期依赖 Clash。
-- **允许无效证书：开/关**：仅用于证书异常的私人订阅服务器，默认关闭。
-- **请求超时**：下载订阅和测试连接的最长等待秒数。
-- **更新间隔**：自动更新订阅的分钟数。
+- 订阅更新参数全部位于“新建配置”，常规设置不再重复显示。
 
 ### 🌐 顶层页签：代理组
 
@@ -86,9 +97,9 @@
 ### 🧪 底部公共按键
 
 - **获取/刷新线路**：只在快速订阅页显示，保存订阅并刷新代理组。
-- **测试**：在新建配置、常规设置和代理组页面显示；保存当前设置，等待内置连接准备完成，然后请求 GitHub API。`HTTP 200` 表示可用。
+- **测试**：只在代理组页面显示；等待内置连接准备完成，然后请求 GitHub API。`HTTP 200` 表示可用。
 - **取消**：返回上一个页面，不主动保存当前输入框中尚未提交的修改。
-- **完成**：保存设置并返回；后台会根据变化重建 GitHub-only 配置。
+- **完成**：新建配置页会保存并进入代理组；其他页面保存后返回。
 
 ## 🎯 它代理什么，不代理什么
 
@@ -195,7 +206,7 @@ config/minecraft-github-network-bridge/runtime/minecraft-github-only.yaml
 
 ## 🚀 Quick start
 
-1. 📥 Download `minecraft-github-network-bridge-1.21.11-1.0.1.jar`.
+1. 📥 Download `minecraft-github-network-bridge-1.21.11-1.0.2.jar`.
 2. 📂 Put it in the Minecraft instance's `mods` folder.
 3. ▶️ Open **Options → Minecraft GitHub**.
 4. ⚙️ Open **Settings → Quick Setup**, paste a Clash/Mihomo YAML subscription URL, then click **Get / Refresh Proxies** in the footer.
@@ -207,6 +218,10 @@ Green `HTTP 200` means compatible Minecraft mods can reach GitHub through the se
 
 Minecraft `1.21.11`, Fabric Loader `0.19.3+`, Fabric API `0.141.5+1.21.11+`, Java `21+`, and Windows x64. Mod Menu `17.0.0+` is optional. Future releases are planned as separate builds for multiple Minecraft versions. 🎮
 
+### 🗃️ GitHub version retention
+
+Every update receives a new Git tag and GitHub Release without replacing older releases. Each Release keeps its runnable JAR; releases from `1.0.2` onward also attach `sources.jar`. GitHub's Source code ZIP/TAR.GZ remains available for every tag.
+
 ## 🖥️ Every page and control
 
 ### ⚙️ Settings tab
@@ -214,14 +229,17 @@ Minecraft `1.21.11`, Fabric Loader `0.19.3+`, Fabric API `0.141.5+1.21.11+`, Jav
 - **Quick Setup → Subscription URL**: creates a configuration with practical defaults. A new URL clears the old proxy selection.
 - **Quick Setup → Get / Refresh Proxies**: replaces the old Test action, saves the URL, downloads the subscription, and opens the refreshed Proxy Group.
 - **New Config → Name**: friendly configuration name.
+- **New Config → Type**: currently `Remote`, meaning a remote subscription URL.
 - **New Config → Description**: local note; it does not affect networking.
 - **New Config → Subscription URL**: private Clash/Mihomo YAML URL.
 - **New Config → User Agent**: subscription download identity; normally keep `clash.meta`.
+- **New Config → HTTP timeout / Update interval**: request seconds and automatic refresh minutes.
+- **New Config → System proxy update**: permits the current system/Java proxy path after direct download fails.
+- **New Config → Kernel proxy update**: permits detected local proxy-core ports after direct download fails.
+- **New Config → Invalid certificates / Auto update**: TLS exception and scheduled-refresh controls.
+- **New Config → Done**: opens Proxy Group immediately and imports parsed proxies. A successful creation resets every New Config field; a failure preserves the draft for correction.
 - **General → GitHub**: master on/off switch.
-- **General → Auto update**: periodically refreshes the subscription and keeps the last working cache on failure.
-- **General → Network tool**: after a direct download failure, temporarily uses a detected local network tool only to fetch the subscription.
-- **General → Invalid certificates**: accepts invalid subscription TLS certificates; off by default.
-- **Request timeout / Update interval**: request seconds and refresh minutes.
+- Subscription update controls live only under New Config; General no longer duplicates them.
 
 ### 🌐 Proxy Group tab
 
@@ -235,9 +253,9 @@ Minecraft `1.21.11`, Fabric Loader `0.19.3+`, Fabric API `0.141.5+1.21.11+`, Jav
 ### 🧪 Common bottom buttons
 
 - **Get / Refresh Proxies**: appears on Quick Setup and refreshes the subscription and Proxy Group.
-- **Test**: appears on New Config, General, and Proxy Group; it saves current values and requests the GitHub API.
+- **Test**: appears only in Proxy Group and requests the GitHub API through the selected proxy.
 - **Cancel**: returns without intentionally saving unfinished input.
-- **Done**: saves and rebuilds the private GitHub-only profile when required.
+- **Done**: New Config saves and opens Proxy Group; other pages save and return.
 
 ## 🎯 Network scope
 
@@ -277,7 +295,7 @@ Never publish a real subscription URL. Runtime YAML, tokens, proxy credentials, 
 
 ## 🚀 Быстрый запуск
 
-1. 📥 Скачайте `minecraft-github-network-bridge-1.21.11-1.0.1.jar`.
+1. 📥 Скачайте `minecraft-github-network-bridge-1.21.11-1.0.2.jar`.
 2. 📂 Поместите JAR в папку `mods` нужной сборки Minecraft.
 3. ▶️ Откройте **Настройки → Minecraft GitHub**.
 4. ⚙️ В **Настройки → Быстрая подписка** вставьте URL YAML-подписки Clash/Mihomo и нажмите нижнюю кнопку **Получить / обновить прокси**.
@@ -289,6 +307,10 @@ Never publish a real subscription URL. Runtime YAML, tokens, proxy credentials, 
 
 Minecraft `1.21.11`, Fabric Loader `0.19.3+`, Fabric API `0.141.5+1.21.11+`, Java `21+`, Windows x64. Mod Menu `17.0.0+` необязателен. Для других версий Minecraft будут выпускаться отдельные JAR. 🎮
 
+### 🗃️ Хранение версий на GitHub
+
+Каждое обновление получает отдельный Git Tag и GitHub Release без замены старых выпусков. В каждом Release хранится рабочий JAR; начиная с `1.0.2`, также прикладывается `sources.jar`. Для каждого тега GitHub сохраняет архивы исходного кода ZIP/TAR.GZ.
+
 ## 🖥️ Все страницы и элементы
 
 ### ⚙️ Вкладка «Настройки»
@@ -296,14 +318,17 @@ Minecraft `1.21.11`, Fabric Loader `0.19.3+`, Fabric API `0.141.5+1.21.11+`, Jav
 - **Быстрая подписка → URL подписки**: создаёт конфигурацию со стандартными параметрами; новый URL сбрасывает старый выбор узла.
 - **Быстрая подписка → Получить / обновить прокси**: заменяет старую проверку, сохраняет URL, загружает подписку и открывает обновлённую группу прокси.
 - **Новая конфигурация → Название**: понятное имя локальной конфигурации.
+- **Тип**: `Remote`, то есть удалённая ссылка подписки.
 - **Описание**: локальная заметка, не влияет на сеть.
 - **URL подписки**: приватная YAML-подписка Clash/Mihomo.
 - **User Agent**: идентификатор загрузки; обычно `clash.meta`.
+- **HTTP-тайм-аут / Интервал обновления**: секунды ожидания и минуты автообновления.
+- **Системный прокси для обновлений**: разрешает системный/Java-прокси после ошибки прямой загрузки.
+- **Прокси-ядро для обновлений**: разрешает найденные локальные порты прокси-ядра.
+- **Недействительные сертификаты / Автообновление**: управление TLS-исключением и расписанием.
+- **Новая конфигурация → Готово**: сразу открывает группу прокси и импортирует узлы. При успехе вся форма очищается; при ошибке черновик сохраняется.
 - **GitHub**: главный переключатель.
-- **Автообновление**: периодически обновляет подписку и сохраняет последний рабочий кэш при ошибке.
-- **Сетевой инструмент**: при ошибке прямой загрузки временно использует локальный сетевой инструмент только для подписки.
-- **Недействительные сертификаты**: разрешает ошибочные TLS-сертификаты подписки; по умолчанию выключено.
-- **Тайм-аут / Интервал**: секунды ожидания и минуты между обновлениями.
+- Параметры обновления находятся только в новой конфигурации и не дублируются в общих настройках.
 
 ### 🌐 Вкладка «Группа прокси»
 
@@ -317,9 +342,9 @@ Minecraft `1.21.11`, Fabric Loader `0.19.3+`, Fabric API `0.141.5+1.21.11+`, Jav
 ### 🧪 Нижние кнопки
 
 - **Получить / обновить прокси**: показывается на странице быстрой подписки и обновляет список узлов.
-- **Проверить**: показывается в новой конфигурации, общих настройках и группе прокси; сохраняет параметры и проверяет GitHub API.
+- **Проверить**: показывается только в группе прокси и проверяет GitHub API через выбранный узел.
 - **Отмена**: возвращается без намеренного сохранения незавершённого ввода.
-- **Готово**: сохраняет и при необходимости перестраивает GitHub-only профиль.
+- **Готово**: в новой конфигурации сохраняет и открывает группу прокси; на других страницах сохраняет и возвращается.
 
 ## 🎯 Область сети
 
